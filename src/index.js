@@ -2,6 +2,7 @@
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
+const axios = require('axios').default;
 
 
 
@@ -20,7 +21,15 @@ async function fetchPics(query)
     let options = `?key=${API_KEY}&q=${request}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`
     const url = `${BASE_URL}/${options}`;
 
-    const data = await fetch(url);
+
+    const response = await axios.get(url);
+
+    console.log('data: ', response);
+
+    const data = await response.data;
+    console.log('data: ', data);
+    // axios.formToJSON(url);
+
     
     return data;
     
@@ -62,16 +71,26 @@ async function handleMore() {
     const request = formInput.value
 
     const data = await getData(request);
+    const hits = await data.totalHits;
+    console.log('handleMore data: ', data.totalHits);
+    if (page * perPage >= hits) {
+        Notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
+        showMoreBtn.classList.add("hidden");
+    }
     await draw(data)
     page += 1;
+
+
 }
 
 async function getData(query) {
     try {
         const response = await fetchPics(query);
-        console.log("SHOW PAGE", page);
-        const data = await response.json();
-        return data;
+        console.log("SHOW PAGE response", response);
+        // const data = await response.json();
+        // console.log('getData data: ', data);
+        // return data;
+        return response;
     } catch (error) {
         console.log(error);
     }
