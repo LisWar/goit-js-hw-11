@@ -1,95 +1,102 @@
-// import fetchPics from "./fetch"
+import Fetch from "./fetch"
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-const axios = require('axios').default;
 
+const fetchApi = new Fetch();
 
-
-
-const API_KEY = '33882008-da48b9f8329c70a8d1ccf5719';
-const BASE_URL = 'https://pixabay.com/api/';
-let request = '';
-let page = 1;
-const perPage = 40;
-// let options = `?key=${API_KEY}&q=${request}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`
-
-async function fetchPics(query)
-{
-    request = query;
-
-    let options = `?key=${API_KEY}&q=${request}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`
-    const url = `${BASE_URL}/${options}`;
-
-
-    const response = await axios.get(url);
-
-    console.log('data: ', response);
-
-    const data = await response.data;
-    console.log('data: ', data);
-    // axios.formToJSON(url);
-
-    
-    return data;
-    
-}
-
-// //////////////////////////////////////////////////////////////////////
+const lightbox = new SimpleLightbox('.photo-card a');
 
 const searchForm = document.querySelector('#search-form');
 const formButton = searchForm.querySelector('button');
 const formInput = searchForm.querySelector('input');
 const gallery = document.querySelector('.gallery');
-const showMoreBtn = document.querySelector('.load-more');
-// console.log('gallery: ', gallery);
+const returnBtn = document.querySelector('.load-more');
+
+returnBtn.addEventListener('click', returnToTop);
 searchForm.addEventListener('submit', e => handleSubmit(e))
-showMoreBtn.addEventListener('click', handleMore)
+returnBtn.addEventListener('click', handleMore)
 
 async function handleSubmit(e) {
     e.preventDefault();
     clearOutput()
-    page = 1;
+    
+    fetchApi.page = 1;
 
-    request = formInput.value
+    request = formInput.value.trim();
     if (request == '') {
         return;
     }
     const data = await getData(request);
-    if (data.totalHits == 0) {
-        Notiflix.Notify.failure("No images found!");
+    const hits = await data.totalHits;
+    if (hits == 0) {
+        returnBtn.classList.add("hidden");
+        Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
         return;
     }
-    await draw(data)
-    page = 2;
-    showMoreBtn.classList.remove("hidden");
+
+    await draw(data).then(() => {
+        if (fetchApi.page * fetchApi.perPage >= hits) {
+        Notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
+        return;
+        }
+        // returnBtn.classList.remove("hidden");
+    })
+    fetchApi.page = 2;
+
+    window.addEventListener('scroll', scrollRefresh);    
 }
 
 async function handleMore() {
-    console.log('HANDLE page: ', page);
-
     const request = formInput.value
-
     const data = await getData(request);
     const hits = await data.totalHits;
-    console.log('handleMore data: ', data.totalHits);
-    if (page * perPage >= hits) {
+
+    if (fetchApi.page * fetchApi.perPage >= hits) {
+        window.removeEventListener('scroll', scrollRefresh);
         Notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
-        showMoreBtn.classList.add("hidden");
+        
+        const pageBottomPos = document
+          .querySelector(".gallery")
+          .firstElementChild.getBoundingClientRect();
+
+          console.log('pageBottomPos: ', pageBottomPos.bottom);
+        if  (pageBottomPos.bottom < 0
+            ) {
+                returnBtn.classList.remove('hidden')
+            }
+
+        const AAA =   document
+          .querySelector(".gallery")
+          .firstElementChild.getBoundingClientRect();
+
+          console.log('AAA: ', AAA);
+        //   window.innerHeight
+          console.log('window.innerHeight: ', window.innerHeight);
+          console.log(AAA.bottom > 0);
+
     }
-    await draw(data)
-    page += 1;
 
+    // const { height: cardHeight } = document
+    // .querySelector(".gallery")
+    // .firstElementChild.getBoundingClientRect();
 
+    draw(data)
+
+    // .then(() =>
+    //     window.scrollBy({
+    //     top: cardHeight * 2,
+    //     behavior: "smooth",
+    // }  
+    //  ));
+
+    fetchApi.page += 1;
 }
 
 async function getData(query) {
+    fetchApi.query = query;
     try {
-        const response = await fetchPics(query);
-        console.log("SHOW PAGE response", response);
-        // const data = await response.json();
-        // console.log('getData data: ', data);
-        // return data;
+        const response = await fetchApi.fetchPics();
         return response;
     } catch (error) {
         console.log(error);
@@ -97,49 +104,66 @@ async function getData(query) {
 }
 
 async function draw(data) {
-    
+    const page = fetchApi.page;
     const collectedData = await data;
-    console.log('collectedData: ', collectedData);
     const galleryImages = collectedData.hits;
     if (page == 1) {
         Notiflix.Notify.success(`Hooray! We found ${collectedData.totalHits} images`)
     }
 
-    galleryImages.forEach(element => {
-        // console.log('element: ', ${element});
+    const galleryArr = await galleryImages.map(img => {
         const markup = `
         <div class="photo-card">
-            <a class="gallery-item" href="${element.largeImageURL}">
-                <img class="gallery-image" src="${element.webformatURL}" alt="${element.tags}"/></a>
+            <a class="gallery-item" href="${img.largeImageURL}">
+                <img class="gallery-image" src="${img.webformatURL}" alt="${img.tags}"/></a>
             <div class="info">
                 <p class="info-item">
                     <b>Likes</b>
-                    <span>${element.likes}</span>
+                    <span>${img.likes}</span>
                 </p>
                 <p class="info-item">
                     <b>Views</b>
-                    <span>${element.views}</span>
+                    <span>${img.views}</span>
                 </p>
                 <p class="info-item">
                     <b>Comments</b>
-                    <span>${element.comments}</span>
+                    <span>${img.comments}</span>
                 </p>
                 <p class="info-item">
                     <b>Downloads</b>
-                    <span>${element.downloads}</span>
+                    <span>${img.downloads}</span>
                 </p>
             </div>
         </div>
-        `
+        `        
+        return markup;
+      })
+    await gallery.insertAdjacentHTML('beforeend', galleryArr)
+    lightbox.refresh()
 
-        gallery.insertAdjacentHTML('beforeend', markup)
-    }
-    );
-    
 }
 
 function clearOutput() {
     gallery.innerHTML = '';
 }
 
-var lightbox = new SimpleLightbox('.photo-card a');
+
+async function checkMore(data) {
+    const hits = await data.totalHits;
+    console.log('(page * perPage >= hits): ', (page * perPage >= hits));
+    return (page * perPage >= hits)
+}
+
+function scrollRefresh() {
+    const galleryRect = gallery.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    if (galleryRect.bottom <= windowHeight) {
+        handleMore();
+    }
+}
+
+function returnToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    returnBtn.classList.add("hidden");
+}
