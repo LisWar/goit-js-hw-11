@@ -60,7 +60,7 @@ async function handleMore() {
           .querySelector(".gallery")
           .firstElementChild.getBoundingClientRect();
 
-          console.log('pageBottomPos: ', pageBottomPos.bottom);
+//           console.log('pageBottomPos: ', pageBottomPos.bottom);
         if  (pageBottomPos.bottom < 0
             ) {
                 returnBtn.classList.remove('hidden')
