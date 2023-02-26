@@ -23,11 +23,11 @@ async function handleSubmit(e) {
     
     fetchApi.page = 1;
 
-    request = formInput.value.trim();
-    if (request == '') {
+    const query = formInput.value.trim();
+    if (query == '') {
         return;
     }
-    const data = await getData(request);
+    const data = await getData(query);
     const hits = await data.totalHits;
     if (hits == 0) {
         returnBtn.classList.add("hidden");
