@@ -11,17 +11,23 @@ const searchForm = document.querySelector('#search-form');
 const formButton = searchForm.querySelector('button');
 const formInput = searchForm.querySelector('input');
 const gallery = document.querySelector('.gallery');
-const returnBtn = document.querySelector('.load-more');
+const moreBtn = document.querySelector('.load-more');
 
-returnBtn.addEventListener('click', returnToTop);
 searchForm.addEventListener('submit', e => handleSubmit(e))
-returnBtn.addEventListener('click', handleMore)
+moreBtn.addEventListener('click', handleMore)
+moreBtn.classList.add("hidden");
+
 
 async function handleSubmit(e) {
     e.preventDefault();
     clearOutput()
     
     fetchApi.page = 1;
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+    });
 
     const query = formInput.value.trim();
     if (query == '') {
@@ -30,7 +36,7 @@ async function handleSubmit(e) {
     const data = await getData(query);
     const hits = await data.totalHits;
     if (hits == 0) {
-        returnBtn.classList.add("hidden");
+        moreBtn.classList.add("hidden");
         Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
         return;
     }
@@ -38,13 +44,15 @@ async function handleSubmit(e) {
     await draw(data).then(() => {
         if (fetchApi.page * fetchApi.perPage >= hits) {
         Notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
+        moreBtn.classList.add("hidden");
         return;
         }
-        // returnBtn.classList.remove("hidden");
+        moreBtn.classList.remove("hidden");
     })
+
+
     fetchApi.page = 2;
 
-    window.addEventListener('scroll', scrollRefresh);    
 }
 
 async function handleMore() {
@@ -53,34 +61,20 @@ async function handleMore() {
     const hits = await data.totalHits;
 
     if (fetchApi.page * fetchApi.perPage >= hits) {
-        window.removeEventListener('scroll', scrollRefresh);
         Notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
-        
-        const pageBottomPos = document
-          .querySelector(".gallery")
-          .firstElementChild.getBoundingClientRect();
-
-//           console.log('pageBottomPos: ', pageBottomPos.bottom);
-        if  (pageBottomPos.bottom < 0
-            ) {
-                returnBtn.classList.remove('hidden')
-            }
-        }
-
-
-
-    // const { height: cardHeight } = document
-    // .querySelector(".gallery")
-    // .firstElementChild.getBoundingClientRect();
-
+        moreBtn.classList.add("hidden");
+    }
+   
     draw(data)
 
-    // .then(() =>
-    //     window.scrollBy({
-    //     top: cardHeight * 2,
-    //     behavior: "smooth",
-    // }  
-    //  ));
+    const { height: cardHeight } = document
+    .querySelector(".gallery")
+    .firstElementChild.getBoundingClientRect();
+  
+    window.scrollBy({
+        top: cardHeight * 2,
+        behavior: "smooth",
+    });
 
     fetchApi.page += 1;
 }
@@ -140,22 +134,22 @@ function clearOutput() {
 }
 
 
-async function checkMore(data) {
-    const hits = await data.totalHits;
-    console.log('(page * perPage >= hits): ', (page * perPage >= hits));
-    return (page * perPage >= hits)
-}
+// async function checkMore(data) {
+//     const hits = await data.totalHits;
+//     console.log('(page * perPage >= hits): ', (page * perPage >= hits));
+//     return (page * perPage >= hits)
+// }
 
-function scrollRefresh() {
-    const galleryRect = gallery.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
+// function scrollRefresh() {
+//     const galleryRect = gallery.getBoundingClientRect();
+//     const windowHeight = window.innerHeight;
     
-    if (galleryRect.bottom <= windowHeight) {
-        handleMore();
-    }
-}
+//     if (galleryRect.bottom <= windowHeight) {
+//         handleMore();
+//     }
+// }
 
-function returnToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    returnBtn.classList.add("hidden");
-}
+// function returnToTop() {
+//     window.scrollTo({ top: 0, behavior: 'smooth' });
+//     moreBtn.classList.add("hidden");
+// }

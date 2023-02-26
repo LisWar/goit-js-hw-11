@@ -1,23 +1,38 @@
 html, body {
     height:100%;
+    color: lightgray;
+    margin: 0;
+  }
+
+  header {
+    position: fixed;
+    top: 0;
     background-color: #666699;
+    height: 80px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+
   }
 
   a{
     text-decoration: none;
     color: inherit;
   }
+
   form{
     display: flex;
-    justify-content: center;
+    
   }
-  
+
   input {
     /* border: 1px solid rgba(255,255,255,.3); */
     width: 200px;
-    height: 20px;
+    height: 40px;
     border: none;
-    border-radius: 10px 0 0 10px;
+    border-radius: 5px 0 0 5px;
     /* border-style; */
 
     padding: 0 16px;
@@ -26,19 +41,19 @@ html, body {
   }
  
   .search-button {
-    height: 20px;
+    height: 40px;
     width: 70px;
-    padding-left: 0;
+    padding: 0;
     cursor:pointer;
     border: none;
-    border-radius: 0 30px 30px 0; 
+    border-radius: 0 5px 5px 0; 
     background-color:#ffffffb6;
-    color:#669;
-    
+    justify-content: center;
   }
 
 .gallery {
-  margin: 50px 10px 0 10px;
+  margin: 10px;
+  margin-top: 90px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -46,7 +61,10 @@ html, body {
 }
 .photo-card{
   width: 420px;
-  height: 400px;
+  height: 380px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  background-color: lightgray;
+  margin-bottom: 20px;
 }
 
 /* .gallery-item{
@@ -55,14 +73,20 @@ html, body {
 
 .gallery-image{
   align-self: center;
-  max-width: 420px;
-  max-height: 300px;
+  /* max-width: 420px;
+  max-height: 300px; */
+  width: 420px;
+  height: 300px;
+  object-fit:cover;
+
 }
 
 .info{
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin: 0 15px;
+  color: black;
 }
 
 .info-item{
@@ -74,6 +98,13 @@ html, body {
 .load-more{
   display: block;
   margin: 30px auto;
+  padding: 15px;
+
+  border: none;
+  border-radius: 5px;
+  background-color: #666699;
+  color: white;
+  text-transform:uppercase;
 }
 
 .hidden{
