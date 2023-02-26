@@ -20,6 +20,8 @@ moreBtn.classList.add("hidden");
 
 async function handleSubmit(e) {
     e.preventDefault();
+    moreBtn.classList.add("hidden");
+
     clearOutput()
     
     fetchApi.page = 1;
@@ -47,9 +49,9 @@ async function handleSubmit(e) {
         moreBtn.classList.add("hidden");
         return;
         }
-        moreBtn.classList.remove("hidden");
+        
     })
-
+    .then(moreBtn.classList.remove("hidden"));
 
     fetchApi.page = 2;
 
