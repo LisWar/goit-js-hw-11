@@ -66,16 +66,7 @@ async function handleMore() {
                 returnBtn.classList.remove('hidden')
             }
 
-        const AAA =   document
-          .querySelector(".gallery")
-          .firstElementChild.getBoundingClientRect();
 
-          console.log('AAA: ', AAA);
-        //   window.innerHeight
-          console.log('window.innerHeight: ', window.innerHeight);
-          console.log(AAA.bottom > 0);
-
-    }
 
     // const { height: cardHeight } = document
     // .querySelector(".gallery")
