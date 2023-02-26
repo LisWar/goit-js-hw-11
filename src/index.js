@@ -65,6 +65,7 @@ async function handleMore() {
             ) {
                 returnBtn.classList.remove('hidden')
             }
+        }
 
 
 
